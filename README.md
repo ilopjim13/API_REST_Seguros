@@ -28,7 +28,7 @@ data class Seguro(
 
 ```sql
 CREATE TABLE seguros (
-    idSeguro INTEGER PRIMARY KEY,
+    id_seguro INTEGER PRIMARY KEY,
     nif VARCHAR(10) NOT NULL,
     nombre VARCHAR(100) NOT NULL,
     ape1 VARCHAR(100) NOT NULL,
