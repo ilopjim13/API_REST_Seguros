@@ -6,13 +6,8 @@ import org.springframework.boot.runApplication
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 
 @SpringBootApplication
-class UnsecuredSegurosApplication : SpringBootServletInitializer() {
+class UnsecuredSegurosApplication
 
-	override fun configure(application: SpringApplicationBuilder): SpringApplicationBuilder {
-		return application.sources(UnsecuredSegurosApplication::class.java)
-	}
-
-	fun main(args: Array<String>) {
-		runApplication<UnsecuredSegurosApplication>(*args)
-	}
+fun main(args: Array<String>) {
+	runApplication<UnsecuredSegurosApplication>(*args)
 }
