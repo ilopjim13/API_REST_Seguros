@@ -1,13 +1,42 @@
+# Ejercicio 2: Gestión de Seguros y Asistencias Médicas en Spring Boot con Kotlin
 
-# Ejercicio 2: Relaciones entre Entidades - Seguro y Asistencia Médica
+En este ejercicio, desarrollarás una API REST completa en **Spring Boot** para la gestión de seguros médicos (**Seguro**) y asistencias médicas asociadas (**AsistenciaMedica**). Implementarás validaciones, relaciones entre entidades, manejo de excepciones personalizadas y retorno de códigos de estado HTTP adecuados.
 
-En este ejercicio, vamos a extender la funcionalidad de la aplicación creada en el **Ejercicio 1** para incluir una nueva entidad: **AsistenciaMedica**. También crearemos las relaciones correspondientes entre **Seguro** y **AsistenciaMedica**, donde un seguro puede tener múltiples asistencias médicas asociadas (relación **uno a muchos**).
+---
 
-## Parte 1: Definición de la Entidad AsistenciaMedica
+## **Enunciado del Ejercicio**
 
-### 1. Entidad AsistenciaMedica
+La aplicación debe cumplir los siguientes objetivos:
 
-Crea una clase de datos en Kotlin para representar la entidad **AsistenciaMedica** con los siguientes atributos:
+### **1. Entidades a Gestionar**
+
+1. **Entidad Seguro:**
+    - Representa un seguro médico.
+    - Propiedades:
+        - `idSeguro`: Identificador único del seguro.
+        - `nif`: Número de identificación fiscal (validar formato).
+        - `nombre`: Nombre del asegurado (no vacío).
+        - `ape1`: Primer apellido del asegurado (no vacío).
+        - `ape2`: Segundo apellido del asegurado (opcional).
+        - `edad`: Edad del asegurado (mayor que 0; no menor de edad).
+        - `numHijos`: Número de hijos (mayor o igual que 0; debe ser 0 si el asegurado no está casado).
+        - `fechaCreacion`: Fecha de creación del seguro.
+        - `sexo`: Sexo del asegurado (no puede ser nulo).
+        - `casado`: Estado civil del asegurado.
+        - `embarazada`: Indica si el asegurado está embarazado (no permitido para hombres).
+
+2. **Entidad AsistenciaMedica:**
+    - Representa una asistencia médica asociada a un seguro.
+    - Propiedades:
+        - `idAsistenciaMedica`: Identificador único de la asistencia.
+        - `seguro`: Referencia al seguro asociado.
+        - `breveDescripcion`: Breve descripción de la asistencia (no vacío).
+        - `lugar`: Lugar de la asistencia (no vacío).
+        - `explicacion`: Explicación detallada de la asistencia (no vacío).
+        - `tipoAsistencia`: Tipo de asistencia (no nulo).
+        - `fecha`: Fecha de la asistencia (no nula).
+        - `hora`: Hora de la asistencia (no nula).
+        - `importe`: Importe asociado (double; mayor que 0, con 2 decimales).
 
 ```kotlin
 data class AsistenciaMedica(
@@ -19,7 +48,7 @@ data class AsistenciaMedica(
     val tipoAsistencia: String,
     val fecha: LocalDate,
     val hora: LocalTime,
-    val importe: BigDecimal
+    val importe: Double
 )
 ```
 
@@ -42,83 +71,101 @@ CREATE TABLE asistencias_medicas (
 
 ---
 
-## Parte 2: Relación entre Seguro y AsistenciaMedica
+### **2. Requisitos Funcionales**
 
-### 1. Relación Uno a Muchos
+1. **Operaciones CRUD:**
+    - **Seguro:**
+        - Crear un seguro.
+        - Consultar un seguro por su identificador.
+        - Listar todos los seguros.
+        - Actualizar un seguro existente.
+        - Eliminar un seguro (debe eliminar también las asistencias asociadas).
 
-En la entidad `Seguro`, añade una lista de asistencias médicas:
+    - **AsistenciaMedica:**
+        - Crear una asistencia médica asociada a un seguro.
+        - Consultar una asistencia médica por su identificador.
+        - Listar todas las asistencias médicas.
+        - Actualizar una asistencia médica existente.
+        - Eliminar una asistencia médica.
 
-```kotlin
-data class Seguro(
-    val idSeguro: Int,
-    val nif: String,
-    val nombre: String,
-    val ape1: String,
-    val ape2: String?,
-    val edad: Int,
-    val numHijos: Int,
-    val fechaCreacion: Date,
-    val sexo: String,
-    val casado: Boolean,
-    val embarazada: Boolean,
-    val asistenciasMedicas: List<AsistenciaMedica> = listOf() // Relación
-)
-```
+2. **Validaciones:**
+    - Implementa las siguientes validaciones para cada entidad (ver tabla de validaciones más abajo).
+    - Retorna un código de estado **400 Bad Request** y un mensaje descriptivo cuando no se cumplan las reglas.
 
-### 2. Controladores
+3. **Manejo de Excepciones:**
+    - Crea excepciones personalizadas para validaciones específicas (**ValidationException**) y recursos no encontrados (**ResourceNotFoundException**).
+    - Centraliza el manejo de excepciones con una clase anotada con `@ControllerAdvice`.
+    - Responde con códigos de estado y mensajes adecuados:
+        - **400 Bad Request**: Para errores de validación.
+        - **404 Not Found**: Para recursos inexistentes.
+        - **500 Internal Server Error**: Para errores inesperados.
 
-Implementa un controlador **AsistenciaMedicaController** con las operaciones CRUD necesarias para gestionar asistencias médicas:
-
-- **GET** `/asistencias`:  
-  Devuelve todas las asistencias médicas registradas.
-
-- **GET** `/asistencias/{id}`:  
-  Devuelve una asistencia médica específica por su identificador `idAsistenciaMedica`.
-
-- **POST** `/seguros/{idSeguro}/asistencias`:  
-  Crea una nueva asistencia médica asociada a un seguro.
-
-- **PUT** `/asistencias/{id}`:  
-  Actualiza los datos de una asistencia médica existente.
-
-- **DELETE** `/asistencias/{id}`:  
-  Elimina una asistencia médica.
+4. **Códigos de Respuesta:**
+    - Operaciones exitosas:
+        - **201 Created**: Para creación de recursos.
+        - **200 OK**: Para consultas y actualizaciones exitosas.
+        - **204 No Content**: Para eliminaciones exitosas.
+    - Operaciones fallidas:
+        - **400 Bad Request**: Para errores de validación.
+        - **404 Not Found**: Para recursos inexistentes.
 
 ---
 
-## Parte 3: Validaciones
+### **3. Requisitos Técnicos**
 
-- El campo `breveDescripcion` no puede estar vacío.
-- El campo `lugar` no puede estar vacío.
-- El campo `explicacion` no puede estar vacío.
-- El campo `tipoAsistencia` no puede ser `null`.
-- El campo `fecha` no puede ser `null`.
-- El campo `hora` no puede ser `null`.
-- El campo `importe`:
-    - No puede ser `null`.
-    - Debe tener hasta **10 dígitos enteros** y **2 decimales**.
-    - Debe ser mayor que 0.
+1. **Relación entre Entidades:**
+    - Relación **1 a N** entre `Seguro` y `AsistenciaMedica`. Cada seguro puede tener múltiples asistencias médicas.
 
----
+2. **Base de Datos:**
+    - Modelo relacional:
+        - Tabla `Seguro` con las columnas correspondientes a sus propiedades.
+        - Tabla `AsistenciaMedica` con una columna `idSeguro` como clave foránea.
 
-## Requisitos del Entorno
+3. **Configuración:**
+    - Configura el proyecto con las siguientes dependencias:
+        - **Spring Web**
+        - **Spring Data JPA**
+        - **MySQL Database** (o un sistema de base de datos a elección).
 
-1. Actualiza el proyecto de **Spring Boot** con las nuevas entidades y relaciones.
-2. Utiliza **JPA** para mapear las relaciones entre las entidades.
-3. Configura validaciones utilizando anotaciones estándar como `@NotNull`, `@Size`, `@Min`, `@DecimalMin`, y otras según sea necesario.
-4. Actualiza el archivo `application.properties` con la configuración de la base de datos.
+4. **Documentación y Pruebas:**
+    - Proporciona pruebas funcionales que incluyan casos de éxito y error, utilizando herramientas como **Insomnia** o **Postman**.
 
 ---
 
-## Entrega
+### **4. Validaciones**
 
-1. Código de las entidades `Seguro` y `AsistenciaMedica`
-2. Código de los controladores `SeguroController` y `AsistenciaMedicaController`.
-3. Código de los services `SeguroService` y `AsistenciaMedicaService` con las validaciones y relaciones.
-4. Pruebas funcionales que incluyan:
-    - Creación de seguros y sus asistencias médicas asociadas.
-    - Consulta y modificación de asistencias médicas.
-    - Eliminación de asistencias médicas y seguros (asegurando la eliminación en cascada).
+| Campo                   | Regla de Validación                                                       | Código HTTP  | Mensaje de Error                                     |
+|-------------------------|---------------------------------------------------------------------------|--------------|-----------------------------------------------------|
+| `nif`                  | Formato válido (regex).                                                   | 400          | "El campo NIF no tiene un formato válido."          |
+| `nombre`, `ape1`       | No puede estar vacío.                                                     | 400          | "El campo {nombre/ape1} no puede estar vacío."      |
+| `edad`                 | Mayor que 0. No menor de edad (<18).                                      | 400          | "No es posible ser menor de edad para hacer un seguro." |
+| `numHijos`             | Mayor o igual que 0. Si `casado = false`, debe ser 0.                    | 400          | "Un seguro no puede registrar hijos si no está casado." |
+| `embarazada`           | No puede ser `true` si `sexo = Hombre`.                                  | 400          | "El campo embarazada no puede ser true si el asegurado es hombre." |
+| `breveDescripcion`     | No puede estar vacío.                                                     | 400          | "El campo breveDescripcion no puede estar vacío."   |
+| `lugar`                | No puede estar vacío.                                                     | 400          | "El campo lugar no puede estar vacío."              |
+| `explicacion`          | No puede estar vacío.                                                     | 400          | "El campo explicacion no puede estar vacío."        |
+| `tipoAsistencia`       | No puede ser null.                                                        | 400          | "El campo tipoAsistencia no puede ser nulo."        |
+| `fecha`, `hora`        | No pueden ser null.                                                       | 400          | "El campo {fecha/hora} no puede ser nulo."          |
+| `importe`              | Mayor que 0.                                                             | 400          | "El campo importe debe ser mayor que 0."            |
+
+---
+
+### **5. Entregables**
+
+1. **Código Fuente:**
+    - Incluye todas las entidades, controladores, servicios, repositorios y excepciones.
+
+2. **SQL de Prueba:**
+    - Proporciona un script para poblar la base de datos con datos de prueba.
+
+3. **Pruebas Funcionales:**
+    - Evidencia de pruebas realizadas con Insomnia, Postman o Swagger:
+        - Casos exitosos para cada operación.
+        - Casos de validación fallida.
+
+4. **Documentación:**
+    - Esquema de la base de datos.
+    - Descripción de los endpoints disponibles.
 
 ---
 
@@ -139,4 +186,4 @@ VALUES
     (3, 2, 'Revisión ginecológica', 'Sevilla', 'Control durante embarazo', 'Consulta', '2024-11-04', '10:00:00', 70.00);
 ```
 
-Con esta ampliación, los alumnos podrán trabajar con relaciones entre entidades, validaciones avanzadas y operaciones CRUD complejas.
+Con este ejercicio, aplicarás tus conocimientos en el diseño y desarrollo de APIs REST, validaciones, manejo de excepciones y buenas prácticas en Spring Boot.
