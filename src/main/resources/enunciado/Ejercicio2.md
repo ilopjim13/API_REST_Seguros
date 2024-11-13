@@ -169,6 +169,22 @@ CREATE TABLE asistencias_medicas (
 
 ---
 
+## **Resumen de Endpoints**
+
+### Endpoints para Seguros
+- **GET** `/seguros`
+- **GET** `/seguros/{idSeguro}`
+- **POST** `/seguros`
+- **PUT** `/seguros/{idSeguro}`
+- **DELETE** `/seguros/{idSeguro}`
+
+### Endpoints para Asistencias Médicas
+- **GET** `/asistencias`
+- **GET** `/asistencias/{idAsistenciaMedica}`
+- **POST** `/seguros/{idSeguro}/asistencias`
+- **PUT** `/asistencias/{idAsistenciaMedica}`
+- **DELETE** `/asistencias/{idAsistenciaMedica}`
+
 ## SQL de Inserción de Datos de Prueba
 
 ```sql
