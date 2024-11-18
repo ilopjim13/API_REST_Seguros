@@ -9,7 +9,7 @@ data class Seguro(
     @Column(name = "id_seguro")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val idSeguro: Int,
+    var idSeguro: Int,
     @Column(nullable = false, length = 10)
     val nif: String,
     @Column(nullable = false, length = 100)
