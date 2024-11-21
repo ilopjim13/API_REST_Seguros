@@ -37,7 +37,9 @@ object DniValidator {
     }
 
     private fun checkFormatDni(dni: String) : Boolean {
-        return dni_format_regex.toRegex(RegexOption.IGNORE_CASE).matches(dni.trim())
+        val dnitemp = dni.trim()
+        return dnitemp.substring(0,8).toIntOrNull() != null && dnitemp.last().digitToIntOrNull() == null
+        //return dni_format_regex.toRegex(RegexOption.IGNORE_CASE).matches(dni.trim())
     }
 
     private fun checkValidDni(dni: String) : Boolean{

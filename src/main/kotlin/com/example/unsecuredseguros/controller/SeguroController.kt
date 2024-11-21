@@ -15,10 +15,10 @@ class SeguroController {
     @Autowired
     private lateinit var seguroService:SeguroService
 
-    //@GetMapping("/")
-    //fun getAllSeguros() {
-//
-    //}
+    @GetMapping("/")
+    fun getAll(): ResponseEntity<List<Seguro>> {
+        return ResponseEntity<List<Seguro>>(seguroService.getAll(), HttpStatus.OK)
+    }
 
     @GetMapping("/{id}")
     fun getById(
